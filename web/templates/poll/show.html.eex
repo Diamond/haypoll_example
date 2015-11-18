@@ -1,0 +1,18 @@
+<h2>Show poll</h2>
+
+<ul>
+
+  <li>
+    <strong>Title:</strong>
+    <%= @poll.title %>
+  </li>
+
+  <li>
+    <strong>Closed:</strong>
+    <%= @poll.closed %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: poll_path(@conn, :edit, @poll) %>
+<%= link "Back", to: poll_path(@conn, :index) %>

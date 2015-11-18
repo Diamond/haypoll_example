@@ -1,0 +1,48 @@
+<%= form_for @changeset, @action, fn f -> %>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below:</p>
+      <ul>
+        <%= for {attr, message} <- f.errors do %>
+          <li><%= humanize(attr) %> <%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= label f, :title, "Title", class: "control-label" %>
+    <%= text_input f, :title, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :closed, "Closed", class: "control-label" %>
+    <%= checkbox f, :closed, class: "form-control" %>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-8">
+      <h4>Entries</h4>
+    </div>
+    <div class="col-xs-4 text-right">
+      <a id="add-entry" class="btn btn-primary">Add Entry</a>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div id="entries">
+      <div class="entry row">
+        <div class="col-xs-10">
+          <input type="text" class="form-control" placeholder="Entry Name" name="poll[entries][]">
+        </div>
+        <div class="col-xs-2">
+          <a class="btn btn-danger remove-entry">Remove</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <%= submit "Submit", class: "btn btn-primary" %>
+  </div>
+<% end %>

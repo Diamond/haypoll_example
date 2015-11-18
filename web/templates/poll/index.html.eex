@@ -1,0 +1,28 @@
+<h2>Listing polls</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Closed</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for poll <- @polls do %>
+    <tr>
+      <td><%= poll.title %></td>
+      <td><%= poll.closed %></td>
+
+      <td class="text-right">
+        <%= link "Show", to: poll_path(@conn, :show, poll), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: poll_path(@conn, :edit, poll), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: poll_path(@conn, :delete, poll), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<%= link "New poll", to: poll_path(@conn, :new) %>
