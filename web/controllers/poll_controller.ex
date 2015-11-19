@@ -2,6 +2,7 @@ defmodule Haypoll.PollController do
   use Haypoll.Web, :controller
 
   alias Haypoll.Poll
+  alias Haypoll.Entry
 
   plug :scrub_params, "poll" when action in [:create, :update]
 
@@ -16,9 +17,7 @@ defmodule Haypoll.PollController do
   end
 
   def create(conn, %{"poll" => poll_params}) do
-    changeset = Poll.changeset(%Poll{}, poll_params)
-
-    case Repo.insert(changeset) do
+    case create_poll(poll_params) do
       {:ok, _poll} ->
         conn
         |> put_flash(:info, "Poll created successfully.")
@@ -28,8 +27,26 @@ defmodule Haypoll.PollController do
     end
   end
 
+  defp create_poll(poll_params) do
+    Repo.transaction fn ->
+      changeset = Poll.changeset(%Poll{}, poll_params)
+
+      case Repo.insert(changeset) do
+        {:ok, poll} ->
+        Enum.map poll_params["entries"], fn entry ->
+          entry = build(poll, :entries, %{title: entry})
+          Repo.insert! entry
+        end
+        {:error, changeset} ->
+          Repo.rollback changeset
+      end
+    end
+  end
+
   def show(conn, %{"id" => id}) do
-    poll = Repo.get!(Poll, id)
+    entry_query = from e in Entry, order_by: [asc: e.id]
+    poll_query  = from p in Poll, preload: [entries: ^entry_query]
+    poll        = Repo.get!(poll_query, id)
     render(conn, "show.html", poll: poll)
   end
 
@@ -45,6 +62,7 @@ defmodule Haypoll.PollController do
 
     case Repo.update(changeset) do
       {:ok, poll} ->
+        Haypoll.Endpoint.broadcast("polls:#{id}", "close", %{closed: poll.closed})
         conn
         |> put_flash(:info, "Poll updated successfully.")
         |> redirect(to: poll_path(conn, :show, poll))

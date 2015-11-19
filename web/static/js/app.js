@@ -21,3 +21,6 @@ import "deps/phoenix_html/web/static/js/phoenix_html"
 // import socket from "./socket"
 import { Poll } from "./poll"
 Poll.load()
+
+import { LivePoller } from "./live_poller"
+LivePoller.init()

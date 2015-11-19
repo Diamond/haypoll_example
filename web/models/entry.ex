@@ -3,7 +3,7 @@ defmodule Haypoll.Entry do
 
   schema "entries" do
     field :title, :string
-    field :votes, :integer
+    field :votes, :integer, default: 0
     belongs_to :poll, Haypoll.Poll
 
     timestamps
