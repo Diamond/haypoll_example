@@ -63,11 +63,11 @@ class LivePoller {
     // Iterate over each entry
     $.each($("li.entry"), (index, li) => {
       // If the entry ids match, update the number of votes for that element
-      if (entryId == li.data("entry-id")) {
+      if (entryId == $(li).data("entry-id")) {
         // Get the number of current votes, parse it as an integer, and add one
-        let newVotes = +(li.find(".votes").text()) + 1
+        let newVotes = +($(li).find(".votes").text()) + 1
         // And update the display for that entry
-        this._updateEntry(li, newVotes)
+        this._updateEntry($(li), newVotes)
       }
     })
   }

@@ -20,7 +20,7 @@ import "deps/phoenix_html/web/static/js/phoenix_html"
 
 // import socket from "./socket"
 import { Poll } from "./poll"
-Poll.load()
+let poll = new Poll()
 
 import { LivePoller } from "./live_poller"
 let livePoller = new LivePoller()
