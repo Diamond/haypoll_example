@@ -1,7 +1,7 @@
 // Import the Socket calls from phoenix.js
 import { Socket } from "deps/phoenix/web/static/js/phoenix"
 
-class LivePoller {
+export class LivePoller {
   constructor() {
     // If the element we're expecting doesn't exist on the page,
     // just exit out of the whole thing
@@ -61,13 +61,14 @@ class LivePoller {
   }
   _updateDisplay(entryId) {
     // Iterate over each entry
-    $.each($("li.entry"), (index, li) => {
+    $.each($("li.entry"), (index, item) => {
+      let li = $(item)
       // If the entry ids match, update the number of votes for that element
-      if (entryId == $(li).data("entry-id")) {
+      if (entryId == li.data("entry-id")) {
         // Get the number of current votes, parse it as an integer, and add one
-        let newVotes = +($(li).find(".votes").text()) + 1
+        let newVotes = +(li.find(".votes").text()) + 1
         // And update the display for that entry
-        this._updateEntry($(li), newVotes)
+        this._updateEntry(li, newVotes)
       }
     })
   }
@@ -110,11 +111,12 @@ class LivePoller {
     // Set up our legend
     var data = [["Choice", "Votes"]]
     // And iterate over each list item
-    $.each($("li.entry"), (index, li) => {
+    $.each($("li.entry"), (index, item) => {
+      let li = $(item)
       // Grab the title
-      let title = $(li).find(".title").text()
+      let title = li.find(".title").text()
       // And grab the integer version of the number of votes
-      let votes = +($(li).find(".votes").text())
+      let votes = +(li.find(".votes").text())
       // And push the result onto our array
       data.push([title, votes])
     })
@@ -122,5 +124,3 @@ class LivePoller {
     return data
   }
 }
-
-export { LivePoller }
