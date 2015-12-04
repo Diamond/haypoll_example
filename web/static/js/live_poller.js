@@ -1,20 +1,19 @@
 // Import the Socket calls from phoenix.js
 import { Socket } from "deps/phoenix/web/static/js/phoenix"
 
-export var LivePoller = {
-  chart: null,
-  init() {
+class LivePoller {
+  constructor() {
     // If the element we're expecting doesn't exist on the page,
     // just exit out of the whole thing
     if (!$("#poll-id").length) { return }
     // Set up our channel for Polls
-    let pollChannel = this.setupPollChannel()
+    this.pollChannel = this._setupPollChannel()
     // Set up each of the voting buttons
-    this.setupVoteButtons(pollChannel)
+    this._setupVoteButtons(this.pollChannel)
     // And setup our graph
-    this.setupGraph()
-  },
-  createSocket() {
+    this._setupGraph()
+  }
+  _createSocket() {
     // Open up a new websocket connection
     let socket = new Socket("/socket")
     // And then connect to it
@@ -24,12 +23,10 @@ export var LivePoller = {
     socket.onOpen(() => console.log("Connected"))
     // And return out the socket
     return socket
-  },
-  setupPollChannel() {
-    // Store the current object for use later
-    let self = this
+  }
+  _setupPollChannel() {
     // Call our createSocket() function above and store the created socket
-    let socket = this.createSocket()
+    let socket = this._createSocket()
     // And grab the id of the poll we're subscribing to
     let pollId = $("#poll-id").val()
     // Next, specify that we want to join a polls channel of the polls: with the poll id.
@@ -38,9 +35,9 @@ export var LivePoller = {
     // Set up a handler for when the channel receives a new_vote message
     pollChannel.on("new_vote", vote => {
       // Update the voted item's display
-      self.updateDisplay(vote.entry_id)
+      this._updateDisplay(vote.entry_id)
       // And update the graph, since we have new data
-      self.updateGraph()
+      this._updateGraph()
     })
     // Set up a handler for when the channel receives a close message
     pollChannel.on("close", status => {
@@ -61,30 +58,24 @@ export var LivePoller = {
     // Finally, return the whole channel we've created; we'll need that to push
     // messages out later.
     return pollChannel
-  },
-  updateDisplay(entryId) {
-    // Store the current object for use later
-    let self = this
+  }
+  _updateDisplay(entryId) {
     // Iterate over each entry
-    $("li.entry").each(function() {
-      // Store the current item
-      let li = $(this)
+    $.each($("li.entry"), (index, li) => {
       // If the entry ids match, update the number of votes for that element
       if (entryId == li.data("entry-id")) {
         // Get the number of current votes, parse it as an integer, and add one
         let newVotes = +(li.find(".votes").text()) + 1
         // And update the display for that entry
-        self.updateEntry(li, newVotes)
+        this._updateEntry(li, newVotes)
       }
     })
-  },
-  updateEntry(li, newVotes) {
+  }
+  _updateEntry(li, newVotes) {
     // Find the .votes span and update it to whatever the new votes value is
     li.find(".votes").text(newVotes)
-  },
-  setupVoteButtons(pollChannel) {
-    // Store the current object for use later
-    let self = this
+  }
+  _setupVoteButtons(pollChannel) {
     // Set up our default click handler for votes
     $(".vote").on("click", event => {
       event.preventDefault()
@@ -95,39 +86,35 @@ export var LivePoller = {
       // And then push a new_vote message with the entry id onto the channel
       pollChannel.push("new_vote", { entry_id: entryId })
     })
-  },
-  setupGraph() {
-    // Store the current object for use later
-    var self = this
+  }
+  _setupGraph() {
     // Load the visualiztion library and corechart packages
     google.load("visualization", "1", { packages: ["corechart"] })
     // And setup a callback for when the load completes
     google.setOnLoadCallback(() => {
       // Create a new pie chart; we can't use jquery for this
-      self.chart = new google.visualization.PieChart(document.getElementById("my-chart"))
+      this.chart = new google.visualization.PieChart(document.getElementById("my-chart"))
       // And update the graph from the new data
-      self.updateGraph()
+      this._updateGraph()
     })
-  },
-  updateGraph() {
+  }
+  _updateGraph() {
     // Grab the current state of data for the graph
-    let data = this.getGraphData()
+    let data = this._getGraphData()
     // Convert the data into a Google Charts appropriate format
     var convertedData = google.visualization.arrayToDataTable(data)
     // And draw the graph, and we'll make it 3d and fancy
     this.chart.draw(convertedData, { title: "Poll", is3D: true })
-  },
-  getGraphData() {
+  }
+  _getGraphData() {
     // Set up our legend
     var data = [["Choice", "Votes"]]
     // And iterate over each list item
-    $("li.entry").each(function() {
-      // Store the current item
-      let li    = $(this)
+    $.each($("li.entry"), (index, li) => {
       // Grab the title
-      let title = li.find(".title").text()
+      let title = $(li).find(".title").text()
       // And grab the integer version of the number of votes
-      let votes = +(li.find(".votes").text())
+      let votes = +($(li).find(".votes").text())
       // And push the result onto our array
       data.push([title, votes])
     })
@@ -135,3 +122,5 @@ export var LivePoller = {
     return data
   }
 }
+
+export { LivePoller }

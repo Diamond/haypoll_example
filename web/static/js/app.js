@@ -23,4 +23,4 @@ import { Poll } from "./poll"
 Poll.load()
 
 import { LivePoller } from "./live_poller"
-LivePoller.init()
+let livePoller = new LivePoller()
